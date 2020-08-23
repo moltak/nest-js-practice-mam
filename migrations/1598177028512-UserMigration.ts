@@ -25,8 +25,8 @@ export class UserMigration1598177028512 implements MigrationInterface {
           },
           {
             name: 'gender',
-            type: 'varchar(5)',
-            isNullable: false,
+            type: 'enum',
+            enum: ['FEMALE', 'MALE'],
           },
           {
             name: 'userId',
@@ -46,7 +46,7 @@ export class UserMigration1598177028512 implements MigrationInterface {
           {
             name: 'userRole',
             type: 'enum',
-            enum: ['PARENT', 'SITTER', 'BOTH', 'NONE'],
+            enum: ['PARENT', 'SITTER', 'BOTH', 'NONE', 'USER'],
           },
           {
             name: 'updatedAt',

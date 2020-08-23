@@ -5,6 +5,12 @@ import { Repository } from 'typeorm';
 import { ParentEntity } from './entity/parent.entity';
 import { SitterEntity } from './entity/sitter.entity';
 import { UserRole } from './entity/user.role';
+import { SignUpDto } from './dto/SignUpDto';
+import { AccessTokenDto } from './dto/AccessTokenDto';
+import { SignInDto } from './dto/SignInDto';
+import { UpdateUserDto } from './dto/UpdateUserDto';
+import { BecomeDto } from './dto/BecomeDto';
+import { Gender } from './entity/gender';
 
 @Injectable()
 export class AppService {
@@ -21,7 +27,7 @@ export class AppService {
     const userEntity = new UserEntity();
     userEntity.name = 'aaaa';
     userEntity.birthDate = '00';
-    userEntity.gender = '남';
+    userEntity.gender = Gender.FEMALE;
     userEntity.userId = 'userId';
     userEntity.password = 'password';
     userEntity.email = 'aaaa@email.com';
@@ -54,5 +60,25 @@ export class AppService {
     );
 
     return 'Hello World!';
+  }
+
+  signUp(signupDto: SignUpDto): Promise<AccessTokenDto> {
+    throw new Error('Method not implemented.');
+  }
+
+  signIn(signInDto: SignInDto): Promise<AccessTokenDto> {
+    throw new Error('Method not implemented.');
+  }
+
+  getUser(userId: number): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+
+  become(becomeDto: BecomeDto): Promise<any> {
+    throw new Error('Method not implemented.');
+  }
+
+  updateUser(updateUserDto: UpdateUserDto): Promise<string> {
+    throw new Error('Method not implemented.');
   }
 }

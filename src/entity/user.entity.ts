@@ -10,6 +10,7 @@ import {
 import { UserRole } from './user.role';
 import { ParentEntity } from './parent.entity';
 import { SitterEntity } from './sitter.entity';
+import { Gender } from './gender';
 
 @Entity({
   name: 'user',
@@ -24,8 +25,12 @@ export class UserEntity {
   @Column()
   birthDate: string;
 
-  @Column()
-  gender: string;
+  @Column({
+    type: 'enum',
+    enum: Gender,
+    default: Gender.FEMALE,
+  })
+  gender: Gender;
 
   @Column()
   userId: string;
@@ -39,7 +44,7 @@ export class UserEntity {
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.NONE,
+    default: UserRole.USER,
   })
   userRole: UserRole;
 

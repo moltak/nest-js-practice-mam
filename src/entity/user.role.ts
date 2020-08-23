@@ -3,4 +3,5 @@ export enum UserRole {
   SITTER = 'SITTER',
   BOTH = 'BOTH',
   NONE = 'NONE',
+  USER = 'USER',
 }
