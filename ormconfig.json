@@ -1,0 +1,16 @@
+{
+  "type": "mysql",
+  "host": "localhost",
+  "port": 3306,
+  "username": "root",
+  "password": "secret",
+  "database": "mamsitter",
+  "entities": ["dist/src/entity/*.entity{.ts,.js}"],
+  "synchronize": false,
+  "logging": true,
+  "migrations": ["dist/migrations/*.js"],
+  "cli": {
+    "migrationsDir": "migrations",
+    "entitiesDir": "src/entity"
+  }
+}
