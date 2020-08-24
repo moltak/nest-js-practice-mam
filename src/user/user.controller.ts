@@ -7,15 +7,15 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { SignUpDto } from '../dto/SignUpDto';
-import { AccessTokenPayload } from '../payload/AccessTokenPayload';
+import { SignUpDto } from '../dto/sign-up-dto';
+import { AccessTokenPayload } from '../payload/access-token-payload';
 import { AuthGuard } from '@nestjs/passport';
-import { SignInDto } from '../dto/SignInDto';
-import { UpdateUserDto } from '../dto/UpdateUserDto';
-import { BecomeDto } from '../dto/BecomeDto';
+import { SignInDto } from '../dto/sign-in-dto';
+import { UpdateUserDto } from '../dto/update-user-dto';
+import { BecomeDto } from '../dto/become-dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { GetUserPayload } from '../payload/GetUserPayload';
+import { GetUserPayload } from '../payload/get-user-payload';
 
 @Controller('users')
 export class UserController {
@@ -50,7 +50,7 @@ export class UserController {
     return this.userService.become(becomeDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards()
   @Get('/:userId')
   getUser(@Param('userId') userId: string): Promise<GetUserPayload> {
     return this.userService.user(userId);

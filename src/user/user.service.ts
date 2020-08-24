@@ -10,14 +10,14 @@ import { ParentEntity } from '../entity/parent.entity';
 import { SitterEntity } from '../entity/sitter.entity';
 import { Gender } from '../entity/gender';
 import { UserRole } from '../entity/user.role';
-import { SignUpDto } from '../dto/SignUpDto';
-import { AccessTokenPayload } from '../payload/AccessTokenPayload';
+import { SignUpDto } from '../dto/sign-up-dto';
+import { AccessTokenPayload } from '../payload/access-token-payload';
 import * as bcrypt from 'bcrypt';
-import { SignInDto } from '../dto/SignInDto';
-import { BecomeDto } from '../dto/BecomeDto';
-import { UpdateUserDto } from '../dto/UpdateUserDto';
+import { SignInDto } from '../dto/sign-in-dto';
+import { BecomeDto } from '../dto/become-dto';
+import { UpdateUserDto } from '../dto/update-user-dto';
 import { AuthService } from '../auth/auth.service';
-import { GetUserPayload } from '../payload/GetUserPayload';
+import { GetUserPayload } from '../payload/get-user-payload';
 
 @Injectable()
 export class UserService {
