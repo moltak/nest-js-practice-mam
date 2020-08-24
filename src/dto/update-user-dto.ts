@@ -1,6 +1,7 @@
-import { IsEnum, IsString, Length, MinLength } from 'class-validator';
+import { IsEnum, IsString, Length, MinLength, Validate } from 'class-validator';
 import { Gender } from '../entity/gender';
 import { Optional } from '@nestjs/common';
+import { CustomPasswordValidator } from '../validator/custom-password-validator';
 
 export class UpdateUserDto {
   @Optional()
@@ -20,7 +21,6 @@ export class UpdateUserDto {
   gender?: Gender;
 
   @Optional()
-  @IsString()
-  @MinLength(6, { message: '패스워드가 짧습니다.' })
+  @Validate(CustomPasswordValidator)
   password?: string;
 }

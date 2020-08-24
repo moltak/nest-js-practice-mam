@@ -21,6 +21,8 @@ nest.js(web framework), typeorm, passport, jwt, bcrypt, class-validator, jest
 #### src/user
 signUp, signIn, user (GET /user), become (부모, 시터 되기), updateUser 함수를 포함
 
+Password 조건: 8-50, 대소문자, 특수문자 
+
 #### src/auth
 id-password 인증 및 jwt validation 로직을 포함
 
