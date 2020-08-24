@@ -3,6 +3,24 @@ import { Gender } from '../entity/gender';
 import { UserRole } from '../entity/user.role';
 
 export class SignUpDto {
+  constructor(
+    name: string = 'name',
+    birthDate: string = 'YYYYMMDD',
+    gender: Gender = Gender.FEMALE,
+    userId: string = 'userId',
+    password: string = 'password',
+    email: string = 'email',
+    userRole: UserRole = UserRole.USER,
+  ) {
+    this.name = name;
+    this.birthDate = birthDate;
+    this.gender = gender;
+    this.userId = userId;
+    this.password = password;
+    this.email = email;
+    this.userRole = userRole;
+  }
+
   @IsString({ message: '아이디가 짧습니다.' })
   @MinLength(2, {})
   name: string;

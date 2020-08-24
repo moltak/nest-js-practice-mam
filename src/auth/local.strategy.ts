@@ -6,7 +6,7 @@ import { PassportStrategy } from '@nestjs/passport';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {
-    super();
+    super({ usernameField: 'userId' });
   }
 
   async validate(userId: string, password: string): Promise<any> {
