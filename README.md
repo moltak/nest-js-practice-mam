@@ -1,75 +1,76 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# Mamsitter with nest.js
 
-[travis-image]: https://api.travis-ci.org/nestjs/nest.svg?branch=master
-[travis-url]: https://travis-ci.org/nestjs/nest
-[linux-image]: https://img.shields.io/travis/nestjs/nest/master.svg?label=linux
-[linux-url]: https://travis-ci.org/nestjs/nest
-  
-  <p align="center">A progressive <a href="http://nodejs.org" target="blank">Node.js</a> framework for building efficient and scalable server-side applications, heavily inspired by <a href="https://angular.io" target="blank">Angular</a>.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/dm/@nestjs/core.svg" alt="NPM Downloads" /></a>
-<a href="https://travis-ci.org/nestjs/nest"><img src="https://api.travis-ci.org/nestjs/nest.svg?branch=master" alt="Travis" /></a>
-<a href="https://travis-ci.org/nestjs/nest"><img src="https://img.shields.io/travis/nestjs/nest/master.svg?label=linux" alt="Linux" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#5" alt="Coverage" /></a>
-<a href="https://gitter.im/nestjs/nestjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge"><img src="https://badges.gitter.im/nestjs/nestjs.svg" alt="Gitter" /></a>
-<a href="https://opencollective.com/nest#backer"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec"><img src="https://img.shields.io/badge/Donate-PayPal-dc3d53.svg"/></a>
-  <a href="https://twitter.com/nestframework"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 전체 구조
 
-## Description
+### 사용한 라이브러리
+nest.js(web framework), typeorm, passport, jwt, bcrypt, class-validator, jest
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Installation
+### Architecture
+3-tier Architecture : controller -> service -> repository
 
-```bash
-$ npm install
+### Package 설명
+#### src/dto: 사용자 request 객체
+ - 각각의 dto는 유저 요청에 대해 유효성을 검증하는 로직이 포함되어 있음
+ - class-validator 를 사용
+
+#### src/entity: db 객체
+
+#### src/payload: 사용자 response 객체
+
+#### src/user
+signUp, signIn, user (GET /user), become (부모, 시터 되기), updateUser 함수를 포함
+
+#### src/auth
+id-password 인증 및 jwt validation 로직을 포함
+
+`auth.module.ts`에서 `Passport, LocalStrategy, JwtStrategy` 를 선언. \
+인증 전략은 컨트롤러에 선언된 `@Decorator`에 따라 선택됨.
+```typescript
+  // 토큰 인증
+  @UseGuards(JwtAuthGuard)
+  @Get('/:userId')
+  getUser(@Param('userId') userId: string): Promise<UserPayload> {
+    return this.userService.user(userId);
+  }
 ```
 
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```typescript
+  // 로그인에서는 id-password(LocalStrategy) 사용
+  @UseGuards(AuthGuard('local'))
+  @Post('/signin')
+  signIn(@Body() signInDto: SignInDto): Promise<AccessTokenPayload> {
+    return this.userService.signIn(signInDto);
+  }
 ```
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+로그인 성공 후 JWT 반환
+```json
+custom jwt claims
+{
+   sub: user.userId,
+   role: user.userRole
+}
 ```
 
-## Support
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 실행방법
+mysql db에 직접 `mamsitter` 테이블을 만든 뒤 아래 명령을 한번에 실행 \
+`npm install && npm run typeorm migration:run &&  jest && npm run start`
 
-## Stay in touch
+## 산출물
+1. [Apiary (api 스펙 문서)](https://app.apiary.io/mamsitter/) \
+apply.momsitter@mfort.co.kr, rednebula@mfort.co.kr 두명에게 read 권한 추가했습니다. 
+2. [Github Repository](https://github.com/moltak/nest-js-practice-mam)
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 부연 설명
+1. Migration files (/migrations) \
+Typeorm 의 CLI를 이용하여 table을 생성하고 foreign-key 및 index 를 생성
 
-## License
+2. ERD \
+![ERD](./raw/erd.png) \
+Sitter와 Parent를 User에 종속되게 DB 설계. User는 PARENT, SITTER, BOTH가 될 수 있으며 각각의 정보는 테이블을 참조해서 획득.
 
-  Nest is [MIT licensed](LICENSE).
+3. Test Code \
+`src/user/user.service.spec.ts` 에 signIn, signUp 과 유저가 시터, 부모, 시터+부모가 되는 등의 비즈니스 로직 테스트 코드가 추가되어 있음.
+![TestCoverage](./raw/test-coverage.png) 
