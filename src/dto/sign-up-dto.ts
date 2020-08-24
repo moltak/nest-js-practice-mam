@@ -1,6 +1,14 @@
-import { IsEmail, IsEnum, IsString, Length, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsString,
+  Length,
+  MinLength,
+  Validate,
+} from 'class-validator';
 import { Gender } from '../entity/gender';
 import { UserRole } from '../entity/user.role';
+import { CustomPasswordValidator } from '../validator/custom-password-validator';
 
 export class SignUpDto {
   constructor(
@@ -39,7 +47,7 @@ export class SignUpDto {
   userId: string;
 
   @IsString()
-  @MinLength(6, { message: '패스워드가 짧습니다.' })
+  @Validate(CustomPasswordValidator)
   password: string;
 
   @IsEmail({}, { message: '이메일 포멧이 올바르지 않습니다.' })
