@@ -15,11 +15,17 @@ import { UpdateUserDto } from '../dto/update-user-dto';
 import { BecomeDto } from '../dto/become-dto';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { GetUserPayload } from '../payload/get-user-payload';
+import { UserPayload } from '../payload/user-payload';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/:userId')
+  getUser(@Param('userId') userId: string): Promise<UserPayload> {
+    return this.userService.user(userId);
+  }
 
   @Post('/signup')
   signUp(@Body() signupDto: SignUpDto): Promise<AccessTokenPayload> {
@@ -33,26 +39,20 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put('/:userId')
-  updateUser(
-    @Body() updateUserDto: UpdateUserDto,
-    @Param('userId') userId: number,
-  ): Promise<any> {
-    return this.userService.updateUser(updateUserDto);
+  @Put('/:userId/become')
+  become(
+    @Param('userId') userId: string,
+    @Body() becomeDto: BecomeDto,
+  ): Promise<UserPayload> {
+    return this.userService.become(userId, becomeDto);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put('/:userId/become')
-  become(
-    @Body() becomeDto: BecomeDto,
-    @Param('userId') userId: number,
-  ): Promise<any> {
-    return this.userService.become(becomeDto);
-  }
-
-  @UseGuards()
-  @Get('/:userId')
-  getUser(@Param('userId') userId: string): Promise<GetUserPayload> {
-    return this.userService.user(userId);
+  @Put('/:userId')
+  updateUser(
+    @Param('userId') userId: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserPayload> {
+    return this.userService.updateUser(userId, updateUserDto);
   }
 }

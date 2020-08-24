@@ -4,10 +4,13 @@ import { UserEntity } from '../entity/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { ParentEntity } from '../entity/parent.entity';
 import { SitterEntity } from '../entity/sitter.entity';
-import { SignUpDto } from '../dto/SignUpDto';
+import { SignUpDto } from '../dto/sign-up-dto';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { SignInDto } from '../dto/SignInDto';
-import { BecomeDto } from '../dto/BecomeDto';
+import { SignInDto } from '../dto/sign-in-dto';
+import { BecomeDto } from '../dto/become-dto';
+import { UserRole } from '../entity/user.role';
+import { Gender } from '../entity/gender';
+import { UpdateUserDto } from '../dto/update-user-dto';
 
 describe('UserService', () => {
   let service: UserService;
@@ -21,10 +24,6 @@ describe('UserService', () => {
     findOne: jest.fn(),
   };
 
-  const parentRepository: jest.Mocked<any> = {};
-
-  const sitterRepository: jest.Mocked<any> = {};
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -36,14 +35,6 @@ describe('UserService', () => {
         {
           provide: getRepositoryToken(UserEntity),
           useValue: userRepository,
-        },
-        {
-          provide: getRepositoryToken(ParentEntity),
-          useValue: parentRepository,
-        },
-        {
-          provide: getRepositoryToken(SitterEntity),
-          useValue: SitterEntity,
         },
       ],
     }).compile();
@@ -140,28 +131,161 @@ describe('UserService', () => {
     );
   });
 
+  it('유저 부모나 시터 되기 - 실패 - 유저 없음', async () => {
+    await expect(
+      service.become('DUMMY_USER_ID', new BecomeDto()),
+    ).rejects.toThrow(NotFoundException);
+  });
+
   it('유저 부모 되기', async () => {
     // given
+    const DUMMY_USER_ID = 0;
+    const CARE_AGE = 4;
+    const DUMMY_DESCRIPTION = 'DUMMY_DESCRIPTION';
+
     const dto = new BecomeDto();
+    dto.careAge = CARE_AGE;
+    dto.description = DUMMY_DESCRIPTION;
+    dto.userRole = UserRole.PARENT;
+
+    userRepository.findOne.mockImplementation(() => {
+      return {
+        id: DUMMY_USER_ID,
+      };
+    });
+
+    userRepository.save.mockImplementation(() => {
+      return {
+        name: 'DUMMY_NAME',
+        birthDate: 'DUMMY_BIRTH_DATE',
+        gender: Gender.FEMALE,
+        userId: 'DUMMY_USER_ID',
+        email: 'DUMMY_EMAIL',
+        userRole: UserRole.PARENT,
+      };
+    });
+
     // when
+    await service.become('DUMMY_USER_ID', dto);
+
     // then
+    expect(userRepository.save).toHaveBeenCalledWith({
+      id: DUMMY_USER_ID,
+      parents: [
+        {
+          careAge: CARE_AGE,
+          description: DUMMY_DESCRIPTION,
+          userId: DUMMY_USER_ID,
+        },
+      ],
+      userRole: UserRole.PARENT,
+    });
   });
 
   it('유저 시터 되기', async () => {
     // given
+    const DUMMY_USER_ID = 0;
+    const DUMMY_MINIMUM_CARE_AGE = 3;
+    const DUMMY_SELF_INTRODUCTION = 'DUMMY_SELF_INTRODUCTION';
+
+    const dto = new BecomeDto();
+    dto.minimumCareAge = DUMMY_MINIMUM_CARE_AGE;
+    dto.selfIntroduction = DUMMY_SELF_INTRODUCTION;
+    dto.userRole = UserRole.SITTER;
+
+    userRepository.findOne.mockImplementation(() => {
+      return {
+        id: DUMMY_USER_ID,
+      };
+    });
+
+    userRepository.save.mockImplementation(() => {
+      return {
+        name: 'DUMMY_NAME',
+        birthDate: 'DUMMY_BIRTH_DATE',
+        gender: Gender.FEMALE,
+        userId: 'DUMMY_USER_ID',
+        email: 'DUMMY_EMAIL',
+        userRole: UserRole.SITTER,
+      };
+    });
+
     // when
+    await service.become('DUMMY_USER_ID', dto);
+
     // then
+    expect(userRepository.save).toHaveBeenCalledWith({
+      id: DUMMY_USER_ID,
+      sitters: [
+        {
+          minimumCareAge: DUMMY_MINIMUM_CARE_AGE,
+          selfIntroduction: DUMMY_SELF_INTRODUCTION,
+          userId: DUMMY_USER_ID,
+        },
+      ],
+      userRole: UserRole.SITTER,
+    });
   });
 
-  it('유저 부모, 시터 정보 부족', async () => {
+  it('유저가 부모가 되고 싶음', async () => {
     // given
+    const user = new UserEntity();
+    user.userRole = UserRole.USER;
+
     // when
+    const res = service.becomeASomething(user, UserRole.PARENT);
+
     // then
+    expect(res).toEqual(UserRole.PARENT);
   });
 
-  it('유저 정보 변경', async () => {
+  it('부모가 시터도 하고 싶음', async () => {
     // given
+    const parent = new UserEntity();
+    parent.userRole = UserRole.PARENT;
+
     // when
+    const res = service.becomeASomething(parent, UserRole.SITTER);
+
     // then
+    expect(res).toEqual(UserRole.BOTH);
+  });
+
+  it('시터가 부모도 하고 싶음', async () => {
+    // given
+    const sitter = new UserEntity();
+    sitter.userRole = UserRole.SITTER;
+
+    // when
+    const res = service.becomeASomething(sitter, UserRole.PARENT);
+
+    // then
+    expect(res).toEqual(UserRole.BOTH);
+  });
+
+  it('시터이면서 부모일 땐, role 변경 안됨', () => {
+    // given
+    const both = new UserEntity();
+    both.userRole = UserRole.BOTH;
+
+    // when
+    const res = service.becomeASomething(both, UserRole.SITTER);
+
+    // then
+    expect(res).toEqual(UserRole.BOTH);
+  });
+
+  it('유저 정보 변경 - 유저 못 찾았음', async () => {
+    // given
+    const dto = new UpdateUserDto();
+
+    userRepository.findOne.mockImplementation(() => {
+      return null;
+    });
+
+    // when
+    await expect(service.updateUser('DUMMY_USER_ID', dto)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

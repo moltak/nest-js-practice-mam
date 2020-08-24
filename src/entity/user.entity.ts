@@ -51,7 +51,6 @@ export class UserEntity {
     type => ParentEntity,
     parent => parent.user,
     {
-      eager: true,
       cascade: ['insert', 'update'],
     },
   )
